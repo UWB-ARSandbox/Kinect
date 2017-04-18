@@ -41,6 +41,7 @@ public class Minimap : MonoBehaviour {
     private float Y_Zoom = 10f;
     private float X_Zoom = 10f;
     private float Z_Zoom = 10f;
+    public float zoomRatio = 30f;
 
     //init Rect references
     public Rect Main_Display = new Rect ( 0f, 0f, 1f, 1f );
@@ -57,12 +58,25 @@ public class Minimap : MonoBehaviour {
     
     private Vector3 CursorPosition;
 
-    
-    //init Slider References
-    private Slider[] PositionSliders = new Slider[2];
-
     //init grab bool (mouse click)
     private bool grab = false;
+    
+    struct Hand
+    {
+        public bool grab;
+        public Vector3 CursorPosition;
+        public GameObject CurrentObject;
+        public Vector3 Movement;
+    }
+
+    Hand rightHand;
+    Hand leftHand;
+
+    Image[] I;
+    Image Left;
+    Image Right;
+    bool leftInput = false;
+    bool rightInput = false;
 
     // Use this for initialization
     void Start () {
@@ -147,17 +161,23 @@ public class Minimap : MonoBehaviour {
         //disable the rigidbody
         CameraRigidBody.SetActive(false);
 
-        //get all sliders in the position UI
-        PositionSliders = PosCanvas.GetComponentsInChildren<Slider>();
-
-        //set screen location for the sliders
-        PositionSliders[0].transform.position = new Vector3(ScreenWidth * .5f, ScreenHeight * .05f);
-        PositionSliders[1].transform.position = new Vector3(ScreenWidth * .06f, ScreenHeight * .4f);
-
         //set camera positions to the kinect camera
         YZ_Camera.transform.position = new Vector3(X_Zoom + CameraRigidBody.transform.position.x, CameraRigidBody.transform.position.y, CameraRigidBody.transform.position.z);
         XZ_Camera.transform.position = new Vector3(CameraRigidBody.transform.position.x, Y_Zoom + CameraRigidBody.transform.position.y, CameraRigidBody.transform.position.z);
         XY_Camera.transform.position = new Vector3(CameraRigidBody.transform.position.x, CameraRigidBody.transform.position.y, Z_Zoom + CameraRigidBody.transform.position.z);
+
+        I = PosCanvas.GetComponentsInChildren<Image>();
+        for(int i = 0; i < I.Length; i++)
+        {
+            if (I[i].name == "RightHand")
+            {
+                Right = I[i];
+            }
+            else
+            {
+                Left = I[i];
+            }
+        }
 
         //disable position ui
         PosCanvas.SetActive(false);
@@ -168,64 +188,17 @@ public class Minimap : MonoBehaviour {
         //if positional ui is active
         if (PosCanvasIsActive == true)
         {
-            //if user grabs (clicks)
-            if (Input.GetMouseButton(0))
-            {
-                //if first update since grab
-                if (grab == false)
-                {
-                    //raycast to cursor location
-                    Ray R = Current.ScreenPointToRay(Input.mousePosition);
-                    RaycastHit hit;
-
-                    Physics.Raycast(R, out hit, 1000);
-
-                    //check what was hit and return the value
-                    if (hit.collider != null)
-                    {
-                        CurrentObject = GameObject.Find(hit.collider.name);
-                        if (CurrentObject.name != CameraRigidBody.name)
-                            CurrentObject = null;
-                    }
-                    else //else hit nothing and return null
-                        CurrentObject = null;
-
-                    //update cursor position
-                    CursorPosition = Input.mousePosition;
-
-                    //set grab to true
-                    grab = true;
-                }
-                else //else not first grab update
-                {
-                    //get difference since last update in position
-                    Vector3 Movement = Input.mousePosition - CursorPosition;
-
-                    //if we hit the rigid body, move the rigid body
-                    if (CurrentObject == CameraRigidBody)
-                    {
-                        MovePosition(Movement);
-                    }
-                    else if (CurrentObject == null) //else we hit nothing, move environment
-                    {
-                        MoveCamera(Movement);
-                    }
-
-                }
-
-            }
-            else //else not in grab this update, set to false;]
-            {
-                grab = false;
-                CurrentObject = null;
-            }
-
             //update cursor position
-            CursorPosition = Input.mousePosition;   
+            //CursorPosition = Input.mousePosition;   
+            updateLeft();
+            updateRight();
+
+            updateUI();
+            ImageUpdate();
+
 
             //update rotation and zoom based on sliders
-            RotatePosition(PositionSliders[0].value);
-            ZoomCamera(PositionSliders[1].value);
+            ZoomCamera();
 
             //update kinect position and rotation
             Kinect.transform.position = CameraRigidBody.transform.position;
@@ -233,37 +206,52 @@ public class Minimap : MonoBehaviour {
         }
 	}
 
-    void MovePosition (Vector3 Movement)
+    void MovePosition (Hand hand)
     {
         //reduce movent to a more realistic number
-        Movement = Movement / 100;
+        //Movement = Movement / 100;
 
         //if top down camera
         if (CurrentCamera == 1)
         {
+            Vector3 v3 = hand.CursorPosition;
+            v3.z = XZ_Camera.transform.position.y - CameraRigidBody.transform.position.y;
+            v3 = XZ_Camera.ScreenToWorldPoint(v3);
+
+            CameraRigidBody.transform.position = v3;
+
             //update rigid body position X and Z position
-            CameraRigidBody.transform.position = CameraRigidBody.transform.position + new Vector3(Movement[0], 0, Movement[1]);
             //move other cameras the same amount to avoid losing the object
-            YZ_Camera.transform.position = YZ_Camera.transform.position + new Vector3(Movement[0], 0, Movement[1]);
-            XY_Camera.transform.position = XY_Camera.transform.position + new Vector3(Movement[0], 0, Movement[1]);
+            YZ_Camera.transform.position = new Vector3(YZ_Camera.transform.position.x, CameraRigidBody.transform.position.y, CameraRigidBody.transform.position.z);
+            XY_Camera.transform.position = new Vector3(CameraRigidBody.transform.position.x, CameraRigidBody.transform.position.y, XY_Camera.transform.position.z);
         }
         //if front view camera
         if (CurrentCamera == 2)
         {
+            Vector3 v3 = hand.CursorPosition;
+            v3.z = XY_Camera.transform.position.z - CameraRigidBody.transform.position.z;
+            v3 = XY_Camera.ScreenToWorldPoint(v3);
+
+            CameraRigidBody.transform.position = v3;
+
             //update X and Y positions
-            CameraRigidBody.transform.position = CameraRigidBody.transform.position + new Vector3(-Movement[0], Movement[1], 0);
             //move other cameras the same amount to avoid losing the object
-            YZ_Camera.transform.position = YZ_Camera.transform.position + new Vector3(-Movement[0], Movement[1], 0);
-            XZ_Camera.transform.position = XZ_Camera.transform.position + new Vector3(-Movement[0], Movement[1], 0);
+            YZ_Camera.transform.position = new Vector3(YZ_Camera.transform.position.x, CameraRigidBody.transform.position.y, CameraRigidBody.transform.position.z);
+            XZ_Camera.transform.position = new Vector3(CameraRigidBody.transform.position.x, XZ_Camera.transform.position.y, CameraRigidBody.transform.position.z);
         }
         //if side view camera
         if (CurrentCamera == 3)
         {
+            Vector3 v3 = hand.CursorPosition;
+            v3.z = YZ_Camera.transform.position.x - CameraRigidBody.transform.position.x;
+            v3 = YZ_Camera.ScreenToWorldPoint(v3);
+
+            CameraRigidBody.transform.position = v3;
+
             //update Y and Z positions
-            CameraRigidBody.transform.position = CameraRigidBody.transform.position + new Vector3(0, Movement[1], Movement[0]);
             //move other cameras the same amount to avoid losing the object
-            XZ_Camera.transform.position = XZ_Camera.transform.position + new Vector3(0, Movement[1], Movement[0]);
-            XY_Camera.transform.position = XY_Camera.transform.position + new Vector3(0, Movement[1], Movement[0]);
+            XZ_Camera.transform.position = new Vector3(CameraRigidBody.transform.position.x, XZ_Camera.transform.position.y, CameraRigidBody.transform.position.z);
+            XY_Camera.transform.position = new Vector3(CameraRigidBody.transform.position.x, CameraRigidBody.transform.position.y, XY_Camera.transform.position.y);
         }
     }
 
@@ -288,24 +276,9 @@ public class Minimap : MonoBehaviour {
         CameraRigidBody.transform.rotation = Quaternion.Euler(X_Rotation, Y_Rotation, Z_Rotation);
     }
 
-    public void ZoomCamera(float num)
+    public void ZoomCamera(/*float num*/)
     {
-        //update top down zoom
-        if (CurrentCamera == 1)
-        {
-            Y_Zoom = num;
-        }
-        //update front view zoom
-        if (CurrentCamera == 2)
-        {
-            Z_Zoom = num;       
-        }
-        //update side view zoom
-        if (CurrentCamera == 3)
-        {
-            X_Zoom = num; 
-        }
-        //update camera position based on rigid body position
+        
         XZ_Camera.transform.position = new Vector3(XZ_Camera.transform.position[0], Y_Zoom + CameraRigidBody.transform.position.y, XZ_Camera.transform.position[2]);
         XY_Camera.transform.position = new Vector3(XY_Camera.transform.position[0], XY_Camera.transform.position[1], Z_Zoom + CameraRigidBody.transform.position.z);
         YZ_Camera.transform.position = new Vector3(X_Zoom + CameraRigidBody.transform.position.x, YZ_Camera.transform.position[1], YZ_Camera.transform.position[2]);
@@ -371,10 +344,6 @@ public class Minimap : MonoBehaviour {
                 Current.depth = PerspectiveDepths;
                 Current = XZ_Camera;
                 XZ_Camera.depth = Main_Depth;
-
-                //update position sliders
-                PositionSliders[0].value = Y_Rotation;
-                PositionSliders[1].value = XZ_Camera.transform.position[1];
             }
             else if (SwapCamera_1 == 2) //else if the camera is the front view
             {
@@ -383,10 +352,6 @@ public class Minimap : MonoBehaviour {
                 Current.depth = PerspectiveDepths;
                 Current = XY_Camera;
                 XY_Camera.depth = Main_Depth;
-
-                //update position sliders
-                PositionSliders[0].value = Z_Rotation;
-                PositionSliders[1].value = XY_Camera.transform.position[2];
             }
             else if (SwapCamera_1 == 3) //else if the camera is the side view
             {
@@ -395,10 +360,6 @@ public class Minimap : MonoBehaviour {
                 Current.depth = PerspectiveDepths;
                 Current = YZ_Camera;
                 YZ_Camera.depth = Main_Depth;
-
-                //update position sliders
-                PositionSliders[0].value = X_Rotation;
-                PositionSliders[1].value = YZ_Camera.transform.position[0];
             }
             else //else error
             {
@@ -423,10 +384,6 @@ public class Minimap : MonoBehaviour {
                 Current.depth = PerspectiveDepths;
                 Current = XZ_Camera;
                 XZ_Camera.depth = Main_Depth;
-
-                //update position sliders
-                PositionSliders[0].value = Y_Rotation;
-                PositionSliders[1].value = XZ_Camera.transform.position[1];
             }
             else if (SwapCamera_2 == 2)
             {
@@ -435,10 +392,6 @@ public class Minimap : MonoBehaviour {
                 Current.depth = PerspectiveDepths;
                 Current = XY_Camera;
                 XY_Camera.depth = Main_Depth;
-
-                //update position sliders
-                PositionSliders[0].value = Z_Rotation;
-                PositionSliders[1].value = XY_Camera.transform.position[2];
             }
             else if (SwapCamera_2 == 3)
             {
@@ -447,10 +400,6 @@ public class Minimap : MonoBehaviour {
                 Current.depth = PerspectiveDepths;
                 Current = YZ_Camera;
                 YZ_Camera.depth = Main_Depth;
-
-                //update position sliders
-                PositionSliders[0].value = X_Rotation;
-                PositionSliders[1].value = YZ_Camera.transform.position[0];
             }
             else
             {
@@ -465,4 +414,360 @@ public class Minimap : MonoBehaviour {
         }
     }
 
+    void updateRight()
+    {
+        if (rightInput)//Input.GetMouseButton(0))
+        {
+            //if first update since grab
+            if (rightHand.grab == false)
+            {
+                //raycast to cursor location
+                Ray R = Current.ScreenPointToRay(Right.transform.position);
+                RaycastHit hit;
+
+                Physics.Raycast(R, out hit, 1000);
+
+                //check what was hit and return the value
+                if (hit.collider != null)
+                {
+                    rightHand.CurrentObject = GameObject.Find(hit.collider.name);
+                    if (rightHand.CurrentObject.name != CameraRigidBody.name)
+                        rightHand.CurrentObject = null;
+                }
+                else //else hit nothing and return null
+                    rightHand.CurrentObject = null;
+
+                //update cursor position
+                rightHand.CursorPosition = Right.transform.position;
+
+                //set grab to true
+                rightHand.grab = true;
+            }
+            else //else not first grab update
+            {
+                //get difference since last update in position
+                rightHand.Movement = Right.transform.position - rightHand.CursorPosition;
+            }
+            
+        }
+        else //else not in grab this update, set to false;]
+        {
+            rightHand.grab = false;
+            rightHand.CurrentObject = null;
+        }
+
+        //update cursor position
+        rightHand.CursorPosition = Right.transform.position;
+    }
+
+    void updateLeft()
+    {
+        if (leftInput)//Input.GetMouseButton(0))
+        {
+            //if first update since grab
+            if (leftHand.grab == false)
+            {
+                //raycast to cursor location
+                Ray R = Current.ScreenPointToRay(Left.transform.position);
+                RaycastHit hit;
+
+                Physics.Raycast(R, out hit, 1000);
+
+                //check what was hit and return the value
+                if (hit.collider != null)
+                {
+                    leftHand.CurrentObject = GameObject.Find(hit.collider.name);
+                    if (leftHand.CurrentObject.name != CameraRigidBody.name)
+                        leftHand.CurrentObject = null;
+                }
+                else //else hit nothing and return null
+                    leftHand.CurrentObject = null;
+
+                //update cursor position
+                leftHand.CursorPosition = Left.transform.position;//Input.mousePosition;
+
+                //set grab to true
+                leftHand.grab = true;
+            }
+            else //else not first grab update
+            {
+                //get difference since last update in position
+                leftHand.Movement = Left.transform.position - leftHand.CursorPosition;
+            }
+        }
+        else //else not in grab this update, set to false;]
+        {
+            leftHand.grab = false;
+            leftHand.CurrentObject = null;
+        }
+
+        //update cursor position
+        leftHand.CursorPosition = Left.transform.position;
+    }
+
+    void updateUI()
+    {
+        switch (rightHand.grab) {
+            case true:
+                switch (leftHand.grab)
+                {
+                    case true:
+                        if (rightHand.CurrentObject != null)
+                        {
+                            if (rightHand.CurrentObject.name == CameraRigidBody.name)
+                            {
+                                UpdateRotation(leftHand);
+                            }
+                        }
+                        else if (leftHand.CurrentObject != null)
+                        {
+                            if (leftHand.CurrentObject.name == CameraRigidBody.name)
+                            {
+                                UpdateRotation(rightHand);
+                            }
+                        }
+                        else
+                        {
+                            UpdateZoom();
+                        }
+                        break;
+                    case false:
+                        UpdatePosition(rightHand);
+                        break;
+                }
+                break;
+            case false:
+                switch (leftHand.grab)
+                {
+                    case true:
+                        UpdatePosition(leftHand);
+                        break;
+                    case false:
+                        break;
+                }
+                break;
+        }
+    }
+
+    void UpdateZoom()
+    {
+        Vector3 MiddleScreen = new Vector3(ScreenWidth / 2, ScreenHeight / 2, leftHand.CursorPosition.z);
+        Vector3 LDir = leftHand.CursorPosition - MiddleScreen;
+        Vector3 RDir = rightHand.CursorPosition - MiddleScreen;
+        Vector3 LMove = leftHand.CursorPosition - leftHand.Movement - MiddleScreen;
+        Vector3 RMove = rightHand.CursorPosition - rightHand.Movement - MiddleScreen;
+
+        switch (CurrentCamera)
+        {
+            case 1:
+                Y_Zoom += (LDir.magnitude - LMove.magnitude) / zoomRatio;
+                Y_Zoom += (RDir.magnitude - RMove.magnitude) / zoomRatio;
+                if (Y_Zoom < 5)
+                    Y_Zoom = 5;
+                if (Y_Zoom > 20)
+                    Y_Zoom = 20;
+                break;
+            case 2:
+                Z_Zoom += (LDir.magnitude - LMove.magnitude) / zoomRatio;
+                Z_Zoom += (RDir.magnitude - RMove.magnitude) / zoomRatio;
+                if (Z_Zoom < 5)
+                    Z_Zoom = 5;
+                if (Z_Zoom > 20)
+                    Z_Zoom = 20;
+                break;
+            case 3:
+                X_Zoom += (LDir.magnitude - LMove.magnitude) / zoomRatio;
+                X_Zoom += (RDir.magnitude - RMove.magnitude) / zoomRatio;
+                if (X_Zoom < 5)
+                    X_Zoom = 5;
+                if (X_Zoom > 20)
+                    X_Zoom = 20;
+                break;
+        }
+    }
+
+    void UpdateRotation(Hand hand)
+    {
+        Vector3 v3 = hand.CursorPosition;
+        Vector3 v3m = hand.CursorPosition - hand.Movement;
+
+        Vector3 Dir;
+        Vector3 Move;
+        Vector3 cross;
+
+        float rot;
+
+        switch (CurrentCamera) {
+            case 1:
+                v3.z = XZ_Camera.transform.position.y - CameraRigidBody.transform.position.y;
+                v3 = XZ_Camera.ScreenToWorldPoint(v3);
+                v3m.z = XZ_Camera.transform.position.y - CameraRigidBody.transform.position.y;
+                v3m = XZ_Camera.ScreenToWorldPoint(v3m);
+
+                Dir = v3 - CameraRigidBody.transform.position;
+                Move = v3m - CameraRigidBody.transform.position;
+
+                Dir.Normalize();
+                Move.Normalize();
+
+                rot = -Vector3.Angle(Dir, Move);
+
+                cross = Vector3.Cross(Dir, Move);
+
+                if (cross.y < 0) //change direction based on Z value
+                {
+                    rot = -rot;
+                }
+
+                CameraRigidBody.transform.Rotate(0, rot, 0, Space.World);
+
+                break;
+            case 2:
+                v3.z = XY_Camera.transform.position.z - CameraRigidBody.transform.position.z;
+                v3 = XY_Camera.ScreenToWorldPoint(v3);
+                v3m.z = XY_Camera.transform.position.z - CameraRigidBody.transform.position.z;
+                v3m = XY_Camera.ScreenToWorldPoint(v3m);
+
+                Dir = v3 - CameraRigidBody.transform.position;
+                Move = v3m - CameraRigidBody.transform.position;
+
+                Dir.Normalize();
+                Move.Normalize();
+
+                rot = -Vector3.Angle(Dir, Move);
+
+                cross = Vector3.Cross(Dir, Move);
+
+                if (cross.z < 0) //change direction based on Z value
+                {
+                    rot = -rot;
+                }
+
+                Debug.LogError(Dir + " " + Move + " " + rot);
+
+                CameraRigidBody.transform.Rotate(0, 0, rot, Space.World);
+
+                break;
+            case 3:
+                v3.z = YZ_Camera.transform.position.x - CameraRigidBody.transform.position.x;
+                v3 = YZ_Camera.ScreenToWorldPoint(v3);
+                v3m.z = YZ_Camera.transform.position.x - CameraRigidBody.transform.position.x;
+                v3m = YZ_Camera.ScreenToWorldPoint(v3m);
+
+                Dir = v3 - CameraRigidBody.transform.position;
+                Move = v3m - CameraRigidBody.transform.position;
+
+                Dir.Normalize();
+                Move.Normalize();
+
+                rot = -Vector3.Angle(Dir, Move);
+
+                cross = Vector3.Cross(Dir, Move);
+
+                if (cross.x < 0) //change direction based on Z value
+                {
+                    rot = -rot;
+                }
+
+                CameraRigidBody.transform.Rotate(rot, 0, 0, Space.World);
+
+                break;
+        }
+    }
+
+    void UpdatePosition(Hand hand)
+    {
+        //if we hit the rigid body, move the rigid body
+        if (hand.CurrentObject != null)
+        {
+            if (hand.CurrentObject.name == CameraRigidBody.name)
+            {
+                MovePosition(hand);
+            }
+        }
+        else //else we hit nothing, move environment
+        {
+            MoveCamera(hand.Movement);
+        }
+    }
+
+    float getAngle(Vector3 Dir, Vector3 Move)
+    {
+        float cosTheta = Vector2.Dot(Dir, Move); //get angle
+
+        Vector3 cross = Vector3.Cross(Move, Dir);
+
+        float rad = Mathf.Acos(cosTheta);  //get radian rotation
+
+        if (cross.z < 0) //change direction based on Z value
+        {
+            rad = -rad;
+        }
+
+        return rad;
+    }
+
+    void ImageUpdate()
+    {
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            Right.transform.position = new Vector3(Right.transform.position.x - 2, Right.transform.position.y, Right.transform.position.z);
+        }
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            Right.transform.position = new Vector3(Right.transform.position.x + 2, Right.transform.position.y, Right.transform.position.z);
+        }
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            Right.transform.position = new Vector3(Right.transform.position.x, Right.transform.position.y + 2, Right.transform.position.z);
+        }
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            Right.transform.position = new Vector3(Right.transform.position.x, Right.transform.position.y - 2, Right.transform.position.z);
+        }
+        if (Input.GetKey(KeyCode.A))
+        {
+            Left.transform.position = new Vector3(Left.transform.position.x - 2, Left.transform.position.y, Left.transform.position.z);
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            Left.transform.position = new Vector3(Left.transform.position.x + 2, Left.transform.position.y, Left.transform.position.z);
+        }
+        if (Input.GetKey(KeyCode.W))
+        {
+            Left.transform.position = new Vector3(Left.transform.position.x, Left.transform.position.y + 2, Left.transform.position.z);
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            Left.transform.position = new Vector3(Left.transform.position.x, Left.transform.position.y - 2, Left.transform.position.z);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (leftInput != true)
+            {
+                leftInput = true;
+                Left.color = Color.cyan;
+            }
+            else
+            {
+                leftInput = false;
+                Left.color = Color.blue;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.RightControl))
+        {
+            if (rightInput != true)
+            {
+                rightInput = true;
+                Right.color = Color.yellow;
+            }
+            else
+            {
+                rightInput = false;
+                Right.color = Color.red;
+            }
+        }
+    }
 }
