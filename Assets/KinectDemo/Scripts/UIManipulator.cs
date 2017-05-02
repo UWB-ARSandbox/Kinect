@@ -1,49 +1,56 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManipulator : MonoBehaviour {
 
-    public Camera myPrimaryCamera;
-    public GameObject myButton;
-    public GameObject myCube;
-
-    // Use this for initialization
-    void Start ()
-    {
-        myButton = GameObject.Find("Minimap Button");
-        if (myButton != null)
-        {
-            Vector3 screenPos = myPrimaryCamera.ScreenToViewportPoint(myButton.transform.position);
-            Debug.Log("This is the screeen space position for MiniMap Button: " + screenPos);
-            Vector3 screenPosq = myPrimaryCamera.ScreenToWorldPoint(myButton.transform.position);
-            Debug.Log("This is the screeen space position for MiniMap Button: " + screenPosq);
-            Vector3 screenPosa = myPrimaryCamera.ViewportToScreenPoint(myButton.transform.position);
-            Debug.Log("This is the screeen space position for MiniMap Button: " + screenPosa);
-            //Vector3 screenPosy = myPrimaryCamera.WorldToScreenPoint(myButton.transform.position);
-            //Debug.Log("This is the screeen space position for MiniMap Button: " + screenPosy);
-        }
-
-
-        myCube = GameObject.Find("Cube (2)");
-        if (myCube != null)
-        {
-            Vector3 screenPos = myPrimaryCamera.ScreenToViewportPoint(myCube.transform.position);
-            Debug.Log("This is the screeen space position for Cube: " + screenPos);
-            Vector3 screenPose = myPrimaryCamera.ScreenToViewportPoint(myCube.transform.position);
-            Debug.Log("This is the screeen space position for Cube: " + screenPose);
-            Vector3 screenPoss = myPrimaryCamera.ViewportToScreenPoint(myCube.transform.position);
-            Debug.Log("This is the screeen space position for Cube: " + screenPoss);
-            //Vector3 screenPosu = myPrimaryCamera.ScreenToWorldPoint(myCube.transform.position);
-            //Debug.Log("This is the screeen space position for Cube: " + screenPosu);
-        }
-    }
+    public GameObject trophyPrefab;
 
     // Update is called once per frame
     void Update ()
     {
-        Vector3 boxPos = myPrimaryCamera.WorldToScreenPoint(myCube.transform.position);
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            var newTrophy = Instantiate(trophyPrefab);
+            var temp = newTrophy.transform.position;
+            temp.z = 3f;
+            newTrophy.transform.position = temp;
+        }
+        //Vector3 boxPos = myPrimaryCamera.WorldToScreenPoint(myCube.transform.position);
+
+        //if (mouseCursor == null)
+        //{
+        //    mouseCursor = GameObject.Find("MouseCursor");
+        //}
+
+        //if (backButton == null )
+        //{
+        //    backButton = GameObject.Find("Back Button");
+        //}
+
+        //if (myHand == null)
+        //{
+        //    myHand = GameObject.FindObjectOfType<HandBehaviour>();
+        //}
+
+        //if (myHand != null && mouseCursor != null)
+        //{
+        //    mouseCursor.transform.position = myPrimaryCamera.WorldToScreenPoint(myHand.transform.position);
+        //}
+        //if (backButton != null)
+        //{
+        //    if (backButton.GetComponent<Collider2D>().IsTouching(mouseCursor.GetComponent<Collider2D>()))
+        //    {
+        //        myButton.gameObject.GetComponent<Image>().color = Color.red;
+        //    }
+        //    else
+        //    {
+        //        myButton.gameObject.GetComponent<Image>().color = Color.blue;
+        //    }
+        //}
 
 
         //myButton.transform.position = myPrimaryCamera.WorldToScreenPoint(myCube.transform.position);
@@ -52,14 +59,14 @@ public class UIManipulator : MonoBehaviour {
 
         //Debug.Log("This is the screeen space position for MiniMap Button: " + buttonPos);
         //Debug.Log("This is the screeen space position for Cube: " + boxPos);
-        if (boxPos.x < (myButton.transform.position.x + 100) && boxPos.x > (myButton.transform.position.x - 100) && boxPos.y < (myButton.transform.position.y + 100) && boxPos.y > (myButton.transform.position.y - 100))
-        {
-            myButton.gameObject.GetComponent<Image>().color = Color.red;
-        }
-        else
-        {
-            myButton.gameObject.GetComponent<Image>().color = Color.blue;
-        }
+        //if (boxPos.x < (myButton.transform.position.x + 100) && boxPos.x > (myButton.transform.position.x - 100) && boxPos.y < (myButton.transform.position.y + 100) && boxPos.y > (myButton.transform.position.y - 100))
+        //{
+        //    myButton.gameObject.GetComponent<Image>().color = Color.red;
+        //}
+        //else
+        //{
+        //    myButton.gameObject.GetComponent<Image>().color = Color.blue;
+        //}
 
     }
 }

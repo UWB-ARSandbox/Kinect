@@ -12,10 +12,13 @@
  */
 
 using UnityEngine;
+using UnityEngine.UI;
 using Windows.Kinect;
 
 public class HandBehaviour : MonoBehaviour
 {
+    private bool mousePointerMode;
+
     // Kinect Body Objects
     private BodySourceManager bodyManager;
     private Body trackedBody;
@@ -47,6 +50,10 @@ public class HandBehaviour : MonoBehaviour
     public Shader standardShader;
     public Shader outlineShader;
 
+    public GameObject mouseLeftCursor;
+    public GameObject mouseRightCursor;
+    private Camera mainCamera;
+    private Minimap myMiniMap;
     // Left/Right Hand enum
     public enum hand
     {
@@ -65,18 +72,39 @@ public class HandBehaviour : MonoBehaviour
     }
 
     // GameObject initlization
-	void Start ()
+    void Start()
     {
+        myMiniMap = GameObject.FindObjectOfType<Minimap>();
+        mousePointerMode = false;
         position = new Vector3();
         selectedPosition = new Vector3();
-        if(handRenderer == null)
+        if (handRenderer == null)
             handRenderer = gameObject.GetComponent<Renderer>();
-	}
-	
-	// Update is called once per frame
-	void Update ()
+    }
+
+    //return the hand position
+    public CameraSpacePoint getHandPos()
     {
-	    if(trackedBody.IsTracked)
+        return pos;
+    }
+
+    //return the hand state
+    public HandState getHandState()
+    {
+        if (thisHand == hand.left)
+        {
+            return trackedBody.HandLeftState;
+        }
+        else
+        {
+            return trackedBody.HandRightState;
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (trackedBody.IsTracked)
         {
             // Get joint position
             if (thisHand == hand.left)
@@ -92,16 +120,24 @@ public class HandBehaviour : MonoBehaviour
                 //rot = trackedBody.JointOrientations[JointType.WristRight].Orientation;
             }
 
-            // Update hand position
-            /*
-            position.x = pos.X * multiplier;
-            position.y = pos.Y * multiplier;// *0.25f;  
-            position.z = pos.Z * multiplier;// *2.25f;
-            */
-            position = trackedBodyObject.transform.TransformPoint(new Vector3(pos.X*10f, pos.Y*10f, pos.Z*10f));
-            //position.x = position.x * multiplier;
-            //position.y = position.y * multiplier;// *0.25f;  
-            //position.z = position.z * multiplier;// *2.25f;
+            if (GameObject.Find("Position_UI"))
+            {
+                mousePointerMode = true;
+            }
+            else
+            {
+                mousePointerMode = false;
+            }
+
+            if (!mousePointerMode)
+            {
+                position = trackedBodyObject.transform.TransformPoint(new Vector3(pos.X * 10f, pos.Y * 10f, pos.Z * 10f));
+            }
+
+            if ( mainCamera == null)
+            {
+                mainCamera = GameObject.Find("KinectReference").GetComponent<Camera>();
+            }           
 
             gameObject.transform.position = position;
             //gameObject.transform.localPosition = position;
@@ -112,53 +148,160 @@ public class HandBehaviour : MonoBehaviour
                 // Set currently selected object's position
                 selectedObject.transform.position = transform.position;
 
-                // Set currently selected object's rotation
-                Vector3 relative = transform.parent.FindChild(otherHand).position;
 
-                selectedObject.transform.LookAt(relative);
             }
 
-            // Check for hand gestures
-            if (thisHand == hand.left)
+            if (!mousePointerMode)
             {
-                if (trackedBody.HandLeftState == HandState.Open)
+                // Check for hand gestures
+                if (thisHand == hand.left)
                 {
-                    releaseObject();
-                    handRenderer.material.color = openColor;
+                    if (trackedBody.HandLeftState == HandState.Open)
+                    {
+                        releaseObject();
+                        handRenderer.material.color = openColor;
+                    }
+                    else if (trackedBody.HandLeftState == HandState.Closed)
+                    {
+                        grabObject();
+                        handRenderer.material.color = closedColor;
+                    }
+                    else if (trackedBody.HandLeftState == HandState.Lasso)
+                    {
+                        handRenderer.material.color = pointColor;
+                    }
+                    else
+                    {
+                        handRenderer.material.color = restColor;
+                    }
                 }
-                else if (trackedBody.HandLeftState == HandState.Closed)
+                else // Right hand
                 {
-                    grabObject();
-                    handRenderer.material.color = closedColor;
+                    if (trackedBody.HandRightState == HandState.Open)
+                    {
+                        releaseObject();
+                        handRenderer.material.color = openColor;
+                    }
+                    else if (trackedBody.HandRightState == HandState.Closed)
+                    {
+                        grabObject();
+                        handRenderer.material.color = closedColor;
+                    }
+                    else if (trackedBody.HandRightState == HandState.Lasso)
+                    {
+                        handRenderer.material.color = pointColor;
+                    }
+                    else
+                    {
+                        handRenderer.material.color = restColor;
+                    }
                 }
-                else if(trackedBody.HandLeftState == HandState.Lasso)
+            }
+            else
+            {
+                // Check for hand gestures specific to only the mouse pinter mode
+                if (thisHand == hand.left)
                 {
-                    handRenderer.material.color = pointColor;
+                    if (mouseLeftCursor == null) mouseLeftCursor = GameObject.Find("MouseCursorL");
+                    if (trackedBody.HandLeftState == HandState.Open)
+                    {
+                        if (myMiniMap) myMiniMap.toggleLeftHandGrab(false);
+                        //releaseObject();
+                        handRenderer.material.color = openColor;
+                        if (mouseLeftCursor != null)
+                        {
+                            var color = openColor;
+                            color.a = 1f;
+                            mouseLeftCursor.GetComponent<Image>().color = color;
+                        }
+                    }
+                    else if (trackedBody.HandLeftState == HandState.Closed)
+                    {
+                        if (myMiniMap) myMiniMap.toggleLeftHandGrab(true);
+                        //grabObject();
+                        handRenderer.material.color = closedColor;
+                        if (mouseLeftCursor != null)
+                        {
+                            var color = closedColor;
+                            color.a = 1f;
+                            mouseLeftCursor.GetComponent<Image>().color = color;
+                        }
+                    }
+                    else
+                    {
+                        handRenderer.material.color = restColor;
+                        if (mouseLeftCursor != null)
+                        {
+                            var color = restColor;
+                            color.a = 1f;
+                            mouseLeftCursor.GetComponent<Image>().color = color;
+                        }
+                    }
+                    if (mouseLeftCursor == null) return;
+                    if (mainCamera == null) return;
+
+
+                    Vector3 newPos = new Vector3((Screen.width/2 )+ (pos.X * 1000),( Screen.height/2 )+ (pos.Y * 1000), pos.Z);
+
+                    if (newPos.x > 0 && newPos.x < mainCamera.pixelWidth && newPos.y > 0 && newPos.y < mainCamera.pixelWidth)
+                    {
+                        mouseLeftCursor.transform.position = newPos;
+                    }
+                    else
+                    {
+                        Debug.Log("mouse if off screen position");
+                    }
                 }
                 else
                 {
-                    handRenderer.material.color = restColor;
-                }
-            }
-            else // Right hand
-            {
-                if (trackedBody.HandRightState == HandState.Open)
-                {
-                    releaseObject();
-                    handRenderer.material.color = openColor;
-                }
-                else if (trackedBody.HandRightState == HandState.Closed)
-                {
-                    grabObject();
-                    handRenderer.material.color = closedColor;
-                }
-                else if (trackedBody.HandRightState == HandState.Lasso)
-                {
-                    handRenderer.material.color = pointColor;
-                }
-                else
-                {
-                    handRenderer.material.color = restColor;
+                    if (mouseRightCursor == null) mouseRightCursor = GameObject.Find("MouseCursorR");
+                    if (trackedBody.HandRightState == HandState.Open)
+                    {
+                        if (myMiniMap) myMiniMap.toggleRightHandGrab(false);
+                        //releaseObject();
+                        handRenderer.material.color = openColor;
+                        if (mouseRightCursor != null)
+                        {
+                            var color = openColor;
+                            color.a = 1f;
+                            mouseRightCursor.GetComponent<Image>().color = color;
+                        }
+                    }
+                    else if (trackedBody.HandRightState == HandState.Closed)
+                    {
+                        if (myMiniMap) myMiniMap.toggleRightHandGrab(true);
+                        //grabObject();
+                        handRenderer.material.color = closedColor;
+                        if (mouseRightCursor != null)
+                        {
+                            var color = closedColor;
+                            color.a = 1f;
+                            mouseRightCursor.GetComponent<Image>().color = color;
+                        }
+                    }
+                    else
+                    {
+                        handRenderer.material.color = restColor;
+                        if (mouseRightCursor != null)
+                        {
+                            var color = restColor;
+                            color.a = 1f;
+                            mouseRightCursor.GetComponent<Image>().color = color;
+                        }
+                    }
+                    if (mouseRightCursor == null) return;
+                    if (mainCamera == null) return;
+
+                    Vector3 newPos = new Vector3((Screen.width / 2) + (pos.X * 1000), (Screen.height / 2 )+ (pos.Y * 1000), pos.Z);
+
+                    if (newPos.x > 0 && newPos.x < mainCamera.pixelWidth && newPos.y > 0 && newPos.y < mainCamera.pixelWidth)
+                    {
+                        mouseRightCursor.transform.position = newPos;
+                    }
+                    else
+                    {
+                        Debug.Log("mouse if off screen position");
+                    }
                 }
             }
         }
@@ -167,17 +310,26 @@ public class HandBehaviour : MonoBehaviour
             // If our tracked body doesn't exist, neither should this hand
             Destroy(this.gameObject);
         }
-	}
+    }
+
+    // turn the mouse pointer mode off or no
+    public void turnOnMousePointerMode(bool isOn)
+    {
+        mousePointerMode = isOn;
+    }
 
     // If we have a selected objecct, and we let go, make sure to tell the
     //  network what it's new position is.
     private void releaseObject()
     {
-        if(selectedObject != null)
+        //Debug.Log("released");
+        if (selectedObject != null)
         {
-           
+            selectedObject.GetPhotonView().TransferOwnership(1);
         }
         selectedObject = null;
+
+
     }
 
     // If we have a highlighted object, make it our selected object. If that object is
@@ -195,23 +347,23 @@ public class HandBehaviour : MonoBehaviour
                 // Set our selected object equal to the newly created object
                 selectedObject = newObj;
             }*/
-            
-                if (!highlightedObject.GetPhotonView().isMine)
-                {
+
+            if (!highlightedObject.GetPhotonView().isMine)
+            {
                 highlightedObject.GetPhotonView().RequestOwnership();
-                }
-                selectedObject = highlightedObject;
-            
+            }
+            selectedObject = highlightedObject;
+
 
             removeHighlight();
         }
     }
-    
+
     // If we're not moving an object, and we touch one, highlight it.
     void OnTriggerEnter(Collider other)
     {
         // If we're not grabbing, and we've entered a different object..
-        if(selectedObject == null && other.gameObject != highlightedObject)
+        if (selectedObject == null && other.gameObject != highlightedObject)
         {
             removeHighlight();
             highlightObject(other.gameObject);
@@ -242,7 +394,7 @@ public class HandBehaviour : MonoBehaviour
     //  set our highlighted object to 'none'.
     private void removeHighlight()
     {
-        if(highlightedObject != null)
+        if (highlightedObject != null)
         {
             // Remove the object's shader outline
             highlightedObject.GetComponent<Renderer>().material.shader = standardShader;

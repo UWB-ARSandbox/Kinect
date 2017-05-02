@@ -141,10 +141,11 @@ public class BodySourceView : PunBehaviour
     
     private GameObject CreateBodyObject(Kinect.Body newBody)//ulong id)
     {
-        GameObject body = new GameObject("Body:" + newBody.TrackingId);
+        GameObject body = new GameObject("Body:" + newBody.TrackingId);        
         body.transform.position = transform.position;
         body.transform.rotation = transform.rotation;
         body.transform.localScale = transform.localScale;
+        body.transform.parent = GameObject.Find("User_PositionRig").transform;
 
         Vector3 jointScale = body.transform.localScale * 0.3f; // New
 
@@ -174,6 +175,7 @@ public class BodySourceView : PunBehaviour
                 newLeft.transform.localScale = body.transform.localScale;
                 //newLeft.transform.parent = body.transform;
                 newLeft.name = "HandLeft";
+                newLeft.transform.parent = GameObject.Find("User_PositionRig").transform;
             }
             else if (jt == Kinect.JointType.HandRight)
             {
@@ -182,21 +184,23 @@ public class BodySourceView : PunBehaviour
                 newRight.transform.localScale = body.transform.localScale;
                // newRight.transform.parent = body.transform;
                 newRight.name = "HandRight";
+                newRight.transform.parent = GameObject.Find("User_PositionRig").transform;
             }
             else if (jt == Kinect.JointType.Head)
             {
                 GameObject newHead = PhotonNetwork.Instantiate(headPrefab.name, position, Quaternion.identity, 0);
                 newHead.GetComponent<HeadBehavior>().init(newBody, body, _BodyManager);
-                newHead.transform.localScale = body.transform.localScale*2f ;
+                newHead.transform.localScale = body.transform.localScale*2 ;
                 //newHead.transform.parent = body.transform;
                 newHead.name = "Head";
-                
+                //newHead.transform.parent = GameObject.Find("User_PositionRig").transform;
             }
         }
+        body.transform.parent = GameObject.Find("User_PositionRig").transform;
 
         // Add Body to HashMap
-      //  Debug.Log(body.name.Substring(body.name.Length - 5, 5));
-       Global.AddObject(Int32.Parse(body.name.Substring(body.name.Length - 5, 5)), body);
+        //  Debug.Log(body.name.Substring(body.name.Length - 5, 5));
+        Global.AddObject(Int32.Parse(body.name.Substring(body.name.Length - 5, 5)), body);
         timer = -2f; // Wait two aditional seconds just in case. ;)
 
         // Send Body to Hololens
