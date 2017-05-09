@@ -255,49 +255,49 @@ public class Minimap : MonoBehaviour {
             Kinect.transform.position = CameraRigidBody.transform.position;
             Kinect.transform.rotation = CameraRigidBody.transform.rotation;
 
-            // I have to do this becuse I loose all the references in start and button switch
-            GameObject[] allHands = new GameObject[2];
-            allHands[0] = GameObject.Find("MouseCursorR");
-            allHands[1] = GameObject.Find("MouseCursorL");
-            Rect[] allButtons = new Rect[3];
-            allButtons[0] = MM;
-            allButtons[1] = Perspective_1;
-            allButtons[2] = Perspective_2;      
+            //// I have to do this becuse I loose all the references in start and button switch
+            //GameObject[] allHands = new GameObject[2];
+            //allHands[0] = GameObject.Find("MouseCursorR");
+            //allHands[1] = GameObject.Find("MouseCursorL");
+            //Rect[] allButtons = new Rect[3];
+            //allButtons[0] = MM;
+            //allButtons[1] = Perspective_1;
+            //allButtons[2] = Perspective_2;      
 
-            for (int j = 0; j < allHands.Length; j++)
-            {
-                var hand = allHands[j];
-                var Xval = hand.gameObject.transform.position.x / ScreenWidth;
-                var Yval = hand.gameObject.transform.position.y / ScreenHeight;
-                for (int i = 0; i < allButtons.Length; i++)
-                {
-                    var currRect = allButtons[i];
-                    if (Xval > currRect.x && Xval < (currRect.x + currRect.width) && Yval > currRect.y && Yval < (currRect.y + currRect.height))
-                    {
-                        Debug.Log("In Box");
-                        SelectedHand = j;
-                        SelectedButton = i;
-                        ButtonArray[i].gameObject.GetComponent<Image>().color = Color.green;
-                        CountDown--;
-                        break;
-                    }
-                    else if ( i == SelectedButton && SelectedHand == j)
-                    {
-                        ButtonArray[i].gameObject.GetComponent<Image>().color = Color.white;
-                        SelectedButton = -1;
-                        CountDown = 100;
-                    }
-                }
-            }
+            //for (int j = 0; j < allHands.Length; j++)
+            //{
+            //    var hand = allHands[j];
+            //    var Xval = hand.gameObject.transform.position.x / ScreenWidth;
+            //    var Yval = hand.gameObject.transform.position.y / ScreenHeight;
+            //    for (int i = 0; i < allButtons.Length; i++)
+            //    {
+            //        var currRect = allButtons[i];
+            //        if (Xval > currRect.x && Xval < (currRect.x + currRect.width) && Yval > currRect.y && Yval < (currRect.y + currRect.height))
+            //        {
+            //            Debug.Log("In Box");
+            //            SelectedHand = j;
+            //            SelectedButton = i;
+            //            ButtonArray[i].gameObject.GetComponent<Image>().color = Color.green;
+            //            CountDown--;
+            //            break;
+            //        }
+            //        else if ( i == SelectedButton && SelectedHand == j)
+            //        {
+            //            ButtonArray[i].gameObject.GetComponent<Image>().color = Color.white;
+            //            SelectedButton = -1;
+            //            CountDown = 100;
+            //        }
+            //    }
+            //}
 
-            // timer runs out the button is clicked
-            if (CountDown < 0)
-            {
-                CountDown = 200;
-                if (SelectedButton == 0) Close();
-                if (SelectedButton == 1) Swap(1);
-                if (SelectedButton == 2) Swap(2);
-            }
+            //// timer runs out the button is clicked
+            //if (CountDown < 0)
+            //{
+            //    CountDown = 200;
+            //    if (SelectedButton == 0) Close();
+            //    if (SelectedButton == 1) Swap(1);
+            //    if (SelectedButton == 2) Swap(2);
+            //}
 
             
             //init perspective Rect variables

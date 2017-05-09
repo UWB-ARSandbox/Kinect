@@ -7,12 +7,18 @@ using Windows.Kinect;
 
 public class MouseCursor : MonoBehaviour
 {
-    public Body trackedBody;                // body instance for this cursor
-    public GameObject mouseLeftCursor;      // left cursor object
-    public GameObject mouseRightCursor;     // right cursor object 
-    public Camera mainCamera;               // main Camera in scene
-    public Minimap myMiniMap;               // the mini map script
-    public bool isActive;                   // should the mouse cursors update
+    public Body trackedBody;                    // body instance for this cursor
+    public GameObject mouseLeftCursor;          // left cursor object
+    public GameObject mouseRightCursor;         // right cursor object 
+    public Camera mainCamera;                   // main Camera in scene
+    public Minimap myMiniMap;                   // the mini map script
+    public bool isActive;                       // should the mouse cursors update
+    public List<Button> InteractableButtons;    // all the buttons for cursor interaction
+
+    public GameObject Timer;
+    private int SelectedButton;
+    private int CountDown;
+    private int SelectedHand;
 
     void Start()
     {
@@ -110,6 +116,48 @@ public class MouseCursor : MonoBehaviour
             {
                 mouseRightCursor.transform.position = newPosRight;
             }
+        }
+
+        var hand = mouseRightCursor;
+        var Xval = hand.gameObject.transform.position.x;
+        var Yval = hand.gameObject.transform.position.y;
+        for (int i = 0; i < InteractableButtons.Count; i++)
+        {
+            if (!InteractableButtons[i].IsActive()) continue;
+            //var T = InteractableButtons[i].gameObject.transform;
+            var currW = InteractableButtons[i].gameObject.GetComponent<RectTransform>().rect.width;
+            var currH = InteractableButtons[i].gameObject.GetComponent<RectTransform>().rect.height;
+            var currPos = InteractableButtons[i].gameObject.transform.position;
+            Debug.Log(currPos);
+            Debug.Log(Xval + " " + Yval);
+
+            if (Xval > (currPos.x - (currW/2)) && Xval < (currPos.x + (currW/2)) && Yval > (currPos.y - (currH / 2)) && Yval < (currPos.y + (currW/2)))
+            {
+                Timer.gameObject.SetActive(true);
+                Timer.GetComponent<Animator>().Play("LoadingAnimation");
+                Debug.Log("In Box");
+                SelectedHand = 0;
+                SelectedButton = i;
+                Timer.gameObject.transform.position = currPos;
+                InteractableButtons[i].gameObject.GetComponent<Image>().color = Color.green;
+                CountDown--;
+                break;
+            }
+            else if (i == SelectedButton && SelectedHand == 0)
+            {
+                Timer.gameObject.SetActive(false);
+                Timer.GetComponent<Animator>().Stop();
+                InteractableButtons[i].gameObject.GetComponent<Image>().color = Color.white;
+                SelectedButton = -1;
+                CountDown = 90;
+            }
+        }
+
+        if (CountDown < 0)
+        {
+            Timer.gameObject.SetActive(false);
+            CountDown = 90;
+            InteractableButtons[SelectedButton].onClick.Invoke();
         }
     }
 
