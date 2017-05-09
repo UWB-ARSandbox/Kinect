@@ -11,19 +11,28 @@ using Photon;
 
 namespace UWBNetworkingPackage.KinectDemo {
 
-	public class CreateObject : PunBehaviour {
-	    void Update()
-	    {
-	        if (Input.GetKeyDown("c"))
-	        {
-	            PhotonNetwork.Instantiate("Cube", Vector3.zero, Quaternion.identity, 0);
-	        }
+    public class CreateObject : PunBehaviour
+    {
 
-	        if (Input.GetKeyDown("s"))
-	        {
-	            PhotonNetwork.Instantiate("Sphere", Vector3.zero, Quaternion.identity, 0);
-	        }
-	    }
-	}
+        public Camera main;
+
+        void Update()
+        {
+            if (Input.GetKeyDown("c"))
+            {
+                PhotonNetwork.Instantiate("Cube", main.transform.position + main.transform.forward * 5, Quaternion.identity, 0);
+            }
+
+            if (Input.GetKeyDown("s"))
+            {
+                PhotonNetwork.Instantiate("Sphere", main.transform.position + main.transform.forward * 5, Quaternion.identity, 0);
+            }
+
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                PhotonNetwork.Instantiate("Trophy", main.transform.position + main.transform.forward * 5, Quaternion.identity, 0);
+            }
+        }
+    }
 
 }
