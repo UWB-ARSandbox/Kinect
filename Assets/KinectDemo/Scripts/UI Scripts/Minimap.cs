@@ -457,10 +457,10 @@ public class Minimap : MonoBehaviour {
         //disable minimap view
         MinimapCamera.enabled = false;
 
-        var firstHand = FindObjectOfType<HandBehaviour>();
+        var firstHand = FindObjectOfType<MouseCursor>();
         if ( firstHand != null )
         {
-            firstHand.turnOnMousePointerMode(true);
+            firstHand.setActive(true);
         }
         else
         {
@@ -479,10 +479,10 @@ public class Minimap : MonoBehaviour {
 
     public void Close ()
     {
-        var firstHand = FindObjectOfType<HandBehaviour>();
+        var firstHand = FindObjectOfType<MouseCursor>();
         if (firstHand != null)
         {
-            firstHand.turnOnMousePointerMode(false);
+            firstHand.setActive(false);
         }
         else
         {

@@ -691,7 +691,7 @@ Transform:
   - {fileID: 124972650}
   - {fileID: 1332874548}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &570711671
 GameObject:
@@ -1036,7 +1036,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &756385337
 Prefab:
@@ -1770,7 +1770,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!81 &1072951071
 AudioListener:
@@ -2154,6 +2154,7 @@ GameObject:
   - component: {fileID: 1233311951}
   - component: {fileID: 1233311950}
   - component: {fileID: 1233311949}
+  - component: {fileID: 1233311953}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2230,13 +2231,28 @@ RectTransform:
   - {fileID: 1172973433}
   - {fileID: 1732196637}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1233311953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1233311948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af82de0393df5df4ea99e14df9440cb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mouseLeftCursor: {fileID: 298342111}
+  mouseRightCursor: {fileID: 929247201}
+  mainCamera: {fileID: 0}
+  myMiniMap: {fileID: 1172973436}
 --- !u!1 &1326242522
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,8 +17,6 @@ using Windows.Kinect;
 
 public class HandBehaviour : MonoBehaviour
 {
-    private bool mousePointerMode;
-
     // Kinect Body Objects
     private BodySourceManager bodyManager;
     private Body trackedBody;
@@ -75,7 +73,6 @@ public class HandBehaviour : MonoBehaviour
     void Start()
     {
         myMiniMap = GameObject.FindObjectOfType<Minimap>();
-        mousePointerMode = false;
         position = new Vector3();
         selectedPosition = new Vector3();
         if (handRenderer == null)
@@ -120,24 +117,12 @@ public class HandBehaviour : MonoBehaviour
                 //rot = trackedBody.JointOrientations[JointType.WristRight].Orientation;
             }
 
-            if (GameObject.Find("Position_UI"))
-            {
-                mousePointerMode = true;
-            }
-            else
-            {
-                mousePointerMode = false;
-            }
+            position = trackedBodyObject.transform.TransformPoint(new Vector3(pos.X * 10f, pos.Y * 10f, pos.Z * 10f));
 
-            if (!mousePointerMode)
-            {
-                position = trackedBodyObject.transform.TransformPoint(new Vector3(pos.X * 10f, pos.Y * 10f, pos.Z * 10f));
-            }
-
-            if ( mainCamera == null)
+            if (mainCamera == null)
             {
                 mainCamera = GameObject.Find("KinectReference").GetComponent<Camera>();
-            }           
+            }
 
             gameObject.transform.position = position;
             //gameObject.transform.localPosition = position;
@@ -151,157 +136,47 @@ public class HandBehaviour : MonoBehaviour
 
             }
 
-            if (!mousePointerMode)
+            // Check for hand gestures
+            if (thisHand == hand.left)
             {
-                // Check for hand gestures
-                if (thisHand == hand.left)
+                if (trackedBody.HandLeftState == HandState.Open)
                 {
-                    if (trackedBody.HandLeftState == HandState.Open)
-                    {
-                        releaseObject();
-                        handRenderer.material.color = openColor;
-                    }
-                    else if (trackedBody.HandLeftState == HandState.Closed)
-                    {
-                        grabObject();
-                        handRenderer.material.color = closedColor;
-                    }
-                    else if (trackedBody.HandLeftState == HandState.Lasso)
-                    {
-                        handRenderer.material.color = pointColor;
-                    }
-                    else
-                    {
-                        handRenderer.material.color = restColor;
-                    }
+                    releaseObject();
+                    handRenderer.material.color = openColor;
                 }
-                else // Right hand
+                else if (trackedBody.HandLeftState == HandState.Closed)
                 {
-                    if (trackedBody.HandRightState == HandState.Open)
-                    {
-                        releaseObject();
-                        handRenderer.material.color = openColor;
-                    }
-                    else if (trackedBody.HandRightState == HandState.Closed)
-                    {
-                        grabObject();
-                        handRenderer.material.color = closedColor;
-                    }
-                    else if (trackedBody.HandRightState == HandState.Lasso)
-                    {
-                        handRenderer.material.color = pointColor;
-                    }
-                    else
-                    {
-                        handRenderer.material.color = restColor;
-                    }
+                    grabObject();
+                    handRenderer.material.color = closedColor;
                 }
-            }
-            else
-            {
-                // Check for hand gestures specific to only the mouse pinter mode
-                if (thisHand == hand.left)
+                else if (trackedBody.HandLeftState == HandState.Lasso)
                 {
-                    if (mouseLeftCursor == null) mouseLeftCursor = GameObject.Find("MouseCursorL");
-                    if (trackedBody.HandLeftState == HandState.Open)
-                    {
-                        if (myMiniMap) myMiniMap.toggleLeftHandGrab(false);
-                        //releaseObject();
-                        handRenderer.material.color = openColor;
-                        if (mouseLeftCursor != null)
-                        {
-                            var color = openColor;
-                            color.a = 1f;
-                            mouseLeftCursor.GetComponent<Image>().color = color;
-                        }
-                    }
-                    else if (trackedBody.HandLeftState == HandState.Closed)
-                    {
-                        if (myMiniMap) myMiniMap.toggleLeftHandGrab(true);
-                        //grabObject();
-                        handRenderer.material.color = closedColor;
-                        if (mouseLeftCursor != null)
-                        {
-                            var color = closedColor;
-                            color.a = 1f;
-                            mouseLeftCursor.GetComponent<Image>().color = color;
-                        }
-                    }
-                    else
-                    {
-                        handRenderer.material.color = restColor;
-                        if (mouseLeftCursor != null)
-                        {
-                            var color = restColor;
-                            color.a = 1f;
-                            mouseLeftCursor.GetComponent<Image>().color = color;
-                        }
-                    }
-                    if (mouseLeftCursor == null) return;
-                    if (mainCamera == null) return;
-
-
-                    Vector3 newPos = new Vector3((Screen.width/2 )+ (pos.X * 1000),( Screen.height/2 )+ (pos.Y * 1000), pos.Z);
-
-                    if (newPos.x > 0 && newPos.x < mainCamera.pixelWidth && newPos.y > 0 && newPos.y < mainCamera.pixelWidth)
-                    {
-                        mouseLeftCursor.transform.position = newPos;
-                    }
-                    else
-                    {
-                        Debug.Log("mouse if off screen position");
-                    }
+                    handRenderer.material.color = pointColor;
                 }
                 else
                 {
-                    if (mouseRightCursor == null) mouseRightCursor = GameObject.Find("MouseCursorR");
-                    if (trackedBody.HandRightState == HandState.Open)
-                    {
-                        if (myMiniMap) myMiniMap.toggleRightHandGrab(false);
-                        //releaseObject();
-                        handRenderer.material.color = openColor;
-                        if (mouseRightCursor != null)
-                        {
-                            var color = openColor;
-                            color.a = 1f;
-                            mouseRightCursor.GetComponent<Image>().color = color;
-                        }
-                    }
-                    else if (trackedBody.HandRightState == HandState.Closed)
-                    {
-                        if (myMiniMap) myMiniMap.toggleRightHandGrab(true);
-                        //grabObject();
-                        handRenderer.material.color = closedColor;
-                        if (mouseRightCursor != null)
-                        {
-                            var color = closedColor;
-                            color.a = 1f;
-                            mouseRightCursor.GetComponent<Image>().color = color;
-                        }
-                    }
-                    else
-                    {
-                        handRenderer.material.color = restColor;
-                        if (mouseRightCursor != null)
-                        {
-                            var color = restColor;
-                            color.a = 1f;
-                            mouseRightCursor.GetComponent<Image>().color = color;
-                        }
-                    }
-                    if (mouseRightCursor == null) return;
-                    if (mainCamera == null) return;
-
-                    Vector3 newPos = new Vector3((Screen.width / 2) + (pos.X * 1000), (Screen.height / 2 )+ (pos.Y * 1000), pos.Z);
-
-                    if (newPos.x > 0 && newPos.x < mainCamera.pixelWidth && newPos.y > 0 && newPos.y < mainCamera.pixelWidth)
-                    {
-                        mouseRightCursor.transform.position = newPos;
-                    }
-                    else
-                    {
-                        Debug.Log("mouse if off screen position");
-                    }
+                    handRenderer.material.color = restColor;
+                }
+            }
+            else // Right hand
+            {
+                if (trackedBody.HandRightState == HandState.Open)
+                {
+                    releaseObject();
+                    handRenderer.material.color = openColor;
+                }
+                else if (trackedBody.HandRightState == HandState.Closed)
+                {
+                    grabObject();
+                    handRenderer.material.color = closedColor;
+                }
+                else if (trackedBody.HandRightState == HandState.Lasso)
+                {
+                    handRenderer.material.color = pointColor;
+                }
+                else
+                {
+                    handRenderer.material.color = restColor;
                 }
             }
         }
@@ -310,12 +185,6 @@ public class HandBehaviour : MonoBehaviour
             // If our tracked body doesn't exist, neither should this hand
             Destroy(this.gameObject);
         }
-    }
-
-    // turn the mouse pointer mode off or no
-    public void turnOnMousePointerMode(bool isOn)
-    {
-        mousePointerMode = isOn;
     }
 
     // If we have a selected objecct, and we let go, make sure to tell the

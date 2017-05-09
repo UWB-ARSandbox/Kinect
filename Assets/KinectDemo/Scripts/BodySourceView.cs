@@ -168,6 +168,13 @@ public class BodySourceView : PunBehaviour
             position.y = body.transform.localPosition.y *0.1f;
             position.z = body.transform.localPosition.z *0.1f;
 
+            // This will only set the body of the cursor if there is none
+            var myCursor = FindObjectOfType<MouseCursor>();
+            if(myCursor && !myCursor.isBodyActive())
+            {
+                myCursor.setBody(newBody);
+            }
+
             if (jt == Kinect.JointType.HandLeft)
             {
                 GameObject newLeft = PhotonNetwork.Instantiate(LefthandPrefab.name, position, Quaternion.identity, 0);
