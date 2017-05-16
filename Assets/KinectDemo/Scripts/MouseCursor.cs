@@ -19,16 +19,18 @@ public class MouseCursor : MonoBehaviour
     public GameObject Timer;
     private int SelectedButton;
     private int CountDown;
+    private int COUNT_DOWN_FRAMES = 45;
     private int SelectedHand;
 
     void Start()
     {
+        CountDown = COUNT_DOWN_FRAMES;
         isActive = false;
         if (!mouseLeftCursor) mouseLeftCursor = GameObject.Find("MouseCursorL");
         if (!mouseRightCursor) mouseRightCursor = GameObject.Find("MouseCursorR");
         if (!mainCamera) mainCamera = GameObject.Find("KinectReference").GetComponent<Camera>();
         if (!myMiniMap) myMiniMap = FindObjectOfType<Minimap>();
-        List<GameObject> interactiveCursors = new List<GameObject>();
+        interactiveCursors = new List<GameObject>();
         interactiveCursors.Add(mouseRightCursor);
         interactiveCursors.Add(mouseLeftCursor);
     }
@@ -155,14 +157,14 @@ public class MouseCursor : MonoBehaviour
                     Timer.GetComponent<Animator>().Stop();
                     InteractableButtons[i].gameObject.GetComponent<Image>().color = Color.white;
                     SelectedButton = -1;
-                    CountDown = 90;
+                    CountDown = COUNT_DOWN_FRAMES;
                 }
             }
 
             if (CountDown < 0)
             {
                 Timer.gameObject.SetActive(false);
-                CountDown = 90;
+                CountDown = COUNT_DOWN_FRAMES;
                 InteractableButtons[SelectedButton].onClick.Invoke();
             }
         }
