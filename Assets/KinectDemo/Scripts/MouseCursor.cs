@@ -14,19 +14,25 @@ public class MouseCursor : MonoBehaviour
     public Minimap myMiniMap;                   // the mini map script
     public bool isActive;                       // should the mouse cursors update
     public List<Button> InteractableButtons;    // all the buttons for cursor interaction
+    public List<GameObject> interactiveCursors;
 
     public GameObject Timer;
     private int SelectedButton;
     private int CountDown;
+    private int COUNT_DOWN_FRAMES = 45;
     private int SelectedHand;
 
     void Start()
     {
+        CountDown = COUNT_DOWN_FRAMES;
         isActive = false;
         if (!mouseLeftCursor) mouseLeftCursor = GameObject.Find("MouseCursorL");
         if (!mouseRightCursor) mouseRightCursor = GameObject.Find("MouseCursorR");
         if (!mainCamera) mainCamera = GameObject.Find("KinectReference").GetComponent<Camera>();
         if (!myMiniMap) myMiniMap = FindObjectOfType<Minimap>();
+        interactiveCursors = new List<GameObject>();
+        interactiveCursors.Add(mouseRightCursor);
+        interactiveCursors.Add(mouseLeftCursor);
     }
 
     void Update()
@@ -118,46 +124,49 @@ public class MouseCursor : MonoBehaviour
             }
         }
 
-        var hand = mouseRightCursor;
-        var Xval = hand.gameObject.transform.position.x;
-        var Yval = hand.gameObject.transform.position.y;
-        for (int i = 0; i < InteractableButtons.Count; i++)
+        for (int j = 0; j < interactiveCursors.Count; j++)
         {
-            if (!InteractableButtons[i].IsActive()) continue;
-            //var T = InteractableButtons[i].gameObject.transform;
-            var currW = InteractableButtons[i].gameObject.GetComponent<RectTransform>().rect.width;
-            var currH = InteractableButtons[i].gameObject.GetComponent<RectTransform>().rect.height;
-            var currPos = InteractableButtons[i].gameObject.transform.position;
-            Debug.Log(currPos);
-            Debug.Log(Xval + " " + Yval);
-
-            if (Xval > (currPos.x - (currW/2)) && Xval < (currPos.x + (currW/2)) && Yval > (currPos.y - (currH / 2)) && Yval < (currPos.y + (currW/2)))
+            Debug.Log("I made it here");
+            var Xval = interactiveCursors[j].gameObject.transform.position.x;
+            var Yval = interactiveCursors[j].gameObject.transform.position.y;
+            for (int i = 0; i < InteractableButtons.Count; i++)
             {
-                Timer.gameObject.SetActive(true);
-                Timer.GetComponent<Animator>().Play("LoadingAnimation");
-                Debug.Log("In Box");
-                SelectedHand = 0;
-                SelectedButton = i;
-                Timer.gameObject.transform.position = currPos;
-                InteractableButtons[i].gameObject.GetComponent<Image>().color = Color.green;
-                CountDown--;
-                break;
+                if (!InteractableButtons[i].IsActive()) continue;
+                //var T = InteractableButtons[i].gameObject.transform;
+                var currW = InteractableButtons[i].gameObject.GetComponent<RectTransform>().rect.width;
+                var currH = InteractableButtons[i].gameObject.GetComponent<RectTransform>().rect.height;
+                var currPos = InteractableButtons[i].gameObject.transform.position;
+                Debug.Log(currPos);
+                Debug.Log(Xval + " " + Yval);
+
+                if (Xval > (currPos.x - (currW / 2)) && Xval < (currPos.x + (currW / 2)) && Yval > (currPos.y - (currH / 2)) && Yval < (currPos.y + (currW / 2)))
+                {
+                    Timer.gameObject.SetActive(true);
+                    Timer.GetComponent<Animator>().Play("LoadingAnimation");
+                    Debug.Log("In Box");
+                    SelectedHand = j;
+                    SelectedButton = i;
+                    Timer.gameObject.transform.position = currPos;
+                    InteractableButtons[i].gameObject.GetComponent<Image>().color = Color.green;
+                    CountDown--;
+                    break;
+                }
+                else if (i == SelectedButton && SelectedHand == j)
+                {
+                    Timer.gameObject.SetActive(false);
+                    Timer.GetComponent<Animator>().Stop();
+                    InteractableButtons[i].gameObject.GetComponent<Image>().color = Color.white;
+                    SelectedButton = -1;
+                    CountDown = COUNT_DOWN_FRAMES;
+                }
             }
-            else if (i == SelectedButton && SelectedHand == 0)
+
+            if (CountDown < 0)
             {
                 Timer.gameObject.SetActive(false);
-                Timer.GetComponent<Animator>().Stop();
-                InteractableButtons[i].gameObject.GetComponent<Image>().color = Color.white;
-                SelectedButton = -1;
-                CountDown = 90;
+                CountDown = COUNT_DOWN_FRAMES;
+                InteractableButtons[SelectedButton].onClick.Invoke();
             }
-        }
-
-        if (CountDown < 0)
-        {
-            Timer.gameObject.SetActive(false);
-            CountDown = 90;
-            InteractableButtons[SelectedButton].onClick.Invoke();
         }
     }
 
