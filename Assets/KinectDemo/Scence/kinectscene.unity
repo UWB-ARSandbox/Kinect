@@ -2037,6 +2037,7 @@ GameObject:
   - component: {fileID: 1172973435}
   - component: {fileID: 1172973434}
   - component: {fileID: 1172973436}
+  - component: {fileID: 1172973437}
   m_Layer: 5
   m_Name: Position_UI
   m_TagString: Untagged
@@ -2158,6 +2159,19 @@ MonoBehaviour:
   - {fileID: 0}
   lockCameraPosition: 0
   lockCameraPos: 1
+--- !u!114 &1172973437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1172973432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dde9a6e83a4739e448f5202907963e76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bodysource: {fileID: 0}
+  MinimapScript: {fileID: 1172973436}
 --- !u!1 &1191693360
 GameObject:
   m_ObjectHideFlags: 0

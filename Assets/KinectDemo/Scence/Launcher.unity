@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 122442699}
   - component: {fileID: 122442698}
   - component: {fileID: 122442700}
+  - component: {fileID: 122442701}
   m_Layer: 0
   m_Name: KinectReference
   m_TagString: Untagged
@@ -180,6 +181,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trophyPrefab: {fileID: 100000, guid: f7f0f4ad90b9d9349a863f051d4f563f, type: 3}
+--- !u!114 &122442701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 122442696}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dde9a6e83a4739e448f5202907963e76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bodysource: {fileID: 2040716774}
+  MinimapScript: {fileID: 0}
 --- !u!1 &280380246
 GameObject:
   m_ObjectHideFlags: 0
@@ -498,6 +512,34 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 6d5b7aa9243c03c4b8b0480095082ab3, type: 2}
   m_IsPrefabParent: 0
+--- !u!1 &1478119970
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 1321488348}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1478119971}
+  m_Layer: 0
+  m_Name: Missing Prefab
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1478119971
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 1321488348}
+  m_GameObject: {fileID: 1478119970}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1516084909
 Prefab:
   m_ObjectHideFlags: 0

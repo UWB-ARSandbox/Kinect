@@ -75,4 +75,11 @@ public class BodySourceManager : MonoBehaviour
             _Sensor = null;
         }
     }
+
+    public KinectSensor getSensor()
+    {
+        if(_Sensor != null)
+            return _Sensor;
+        return null;
+    }
 }
