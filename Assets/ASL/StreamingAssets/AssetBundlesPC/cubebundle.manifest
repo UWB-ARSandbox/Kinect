@@ -1,0 +1,36 @@
+ManifestFileVersion: 0
+CRC: 601544979
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: b6539cc7afd87908a1b087f6e490c5d8
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 7d3c6c1c9449b0b1ab0aa53c6d38b077
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+Assets:
+- Assets/Photon Unity Networking/Resources/Cube.prefab
+Dependencies: []
