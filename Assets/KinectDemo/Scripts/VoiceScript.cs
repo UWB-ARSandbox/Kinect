@@ -57,29 +57,11 @@ public class VoiceScript : MonoBehaviour {
         {
             keywordAction.Invoke();
         }
-
-        string[] mList = Microphone.devices.ToArray();
-
-        for (int i = 0;i < mList.Length; i++)
-        {
-            Debug.Log(mList[i]);
-        }
     }
 
     // Update is called once per frame
     void Update () {
-        //if (KinectAudio != null)
-        //{
-        //    //Microphone.Start();
-        //}
-        //else
-        //{
-        //    KinectAudio = bodysource.getSensor().AudioSource;
-        //    if (KinectAudio == null)
-        //    {
-        //        Debug.LogError("Kinect Audio Source returned null");
-        //    }
-        //}
+        
     }
 
 }
