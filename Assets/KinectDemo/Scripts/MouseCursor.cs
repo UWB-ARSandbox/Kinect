@@ -126,7 +126,6 @@ public class MouseCursor : MonoBehaviour
 
         for (int j = 0; j < interactiveCursors.Count; j++)
         {
-            Debug.Log("I made it here");
             var Xval = interactiveCursors[j].gameObject.transform.position.x;
             var Yval = interactiveCursors[j].gameObject.transform.position.y;
             for (int i = 0; i < InteractableButtons.Count; i++)
@@ -136,14 +135,11 @@ public class MouseCursor : MonoBehaviour
                 var currW = InteractableButtons[i].gameObject.GetComponent<RectTransform>().rect.width;
                 var currH = InteractableButtons[i].gameObject.GetComponent<RectTransform>().rect.height;
                 var currPos = InteractableButtons[i].gameObject.transform.position;
-                Debug.Log(currPos);
-                Debug.Log(Xval + " " + Yval);
 
                 if (Xval > (currPos.x - (currW / 2)) && Xval < (currPos.x + (currW / 2)) && Yval > (currPos.y - (currH / 2)) && Yval < (currPos.y + (currW / 2)))
                 {
                     Timer.gameObject.SetActive(true);
                     Timer.GetComponent<Animator>().Play("LoadingAnimation");
-                    Debug.Log("In Box");
                     SelectedHand = j;
                     SelectedButton = i;
                     Timer.gameObject.transform.position = currPos;

@@ -2170,7 +2170,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dde9a6e83a4739e448f5202907963e76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bodysource: {fileID: 0}
   MinimapScript: {fileID: 1172973436}
 --- !u!1 &1191693360
 GameObject:
@@ -2373,6 +2372,7 @@ MonoBehaviour:
   - {fileID: 622696436}
   - {fileID: 570711673}
   - {fileID: 484785858}
+  interactiveCursors: []
   Timer: {fileID: 1969010104}
 --- !u!1 &1326242522
 GameObject:
@@ -2497,7 +2497,7 @@ RectTransform:
   m_Children:
   - {fileID: 235482826}
   m_Father: {fileID: 1732196637}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2911,6 +2911,7 @@ GameObject:
   - component: {fileID: 1732196637}
   - component: {fileID: 1732196639}
   - component: {fileID: 1732196638}
+  - component: {fileID: 1732196640}
   m_Layer: 5
   m_Name: Main UI
   m_TagString: Untagged
@@ -2928,6 +2929,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 2019020676}
   - {fileID: 1380413602}
   m_Father: {fileID: 1233311952}
   m_RootOrder: 1
@@ -2970,6 +2972,20 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1732196636}
+--- !u!114 &1732196640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1732196636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41c148603562c754794c344f3cffc6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trakedBodyParent: {fileID: 0}
+  boundBox: {fileID: 2019020675}
+  mainCamera: {fileID: 0}
 --- !u!1001 &1760019345
 Prefab:
   m_ObjectHideFlags: 0
@@ -3483,6 +3499,78 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 897323212}
   m_GameObject: {fileID: 2004276186}
+--- !u!1 &2019020675
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 1296740212644260, guid: 0c183d034b68b7242bac37c52e7c449e,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 2019020676}
+  - component: {fileID: 2019020678}
+  - component: {fileID: 2019020677}
+  m_Layer: 5
+  m_Name: BoundBox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2019020676
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 224589141895531118, guid: 0c183d034b68b7242bac37c52e7c449e,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2019020675}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 9.999817}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1732196637}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -177, y: 51}
+  m_SizeDelta: {x: 289, y: 180}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2019020677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 114469203765272292, guid: 0c183d034b68b7242bac37c52e7c449e,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2019020675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 0
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+--- !u!222 &2019020678
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 222592335871831292, guid: 0c183d034b68b7242bac37c52e7c449e,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2019020675}
 --- !u!1 &2072355632
 GameObject:
   m_ObjectHideFlags: 0

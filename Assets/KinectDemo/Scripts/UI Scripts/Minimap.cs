@@ -74,6 +74,8 @@ public class Minimap : MonoBehaviour {
     public bool lockCameraPosition = false;
     public int lockCameraPos = 1;
 
+    public PhysicalBounds myBounds;
+
     private Button FrontButton;
     private Button ThirdPersonButton;
     private Button LockButton;
@@ -97,6 +99,8 @@ public class Minimap : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+
+        myBounds = GameObject.FindObjectOfType<PhysicalBounds>();
 
         //get Position UI gameobject
         PosCanvas = GameObject.Find("Position_UI");
@@ -479,6 +483,7 @@ public class Minimap : MonoBehaviour {
 
     public void Close ()
     {
+        myBounds.updateBoundPositions();
         var firstHand = FindObjectOfType<MouseCursor>();
         if (firstHand != null)
         {
