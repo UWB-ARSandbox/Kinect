@@ -421,7 +421,7 @@ Prefab:
     - target: {fileID: 114000011044434276, guid: d8b9ab36ea167c74192f6e88e8bd1a39,
         type: 2}
       propertyPath: RoomName
-      value: UWBKinectMaster
+      value: UWBKinectDemo
       objectReference: {fileID: 0}
     - target: {fileID: 114000011044434276, guid: d8b9ab36ea167c74192f6e88e8bd1a39,
         type: 2}
@@ -2354,6 +2354,7 @@ GameObject:
   - component: {fileID: 1172973435}
   - component: {fileID: 1172973434}
   - component: {fileID: 1172973436}
+  - component: {fileID: 1172973437}
   m_Layer: 5
   m_Name: Position_UI
   m_TagString: Untagged
@@ -2475,6 +2476,18 @@ MonoBehaviour:
   - {fileID: 0}
   lockCameraPosition: 0
   lockCameraPos: 1
+--- !u!114 &1172973437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1172973432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5444cba4eaadaf7448ab4420662558da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MinimapScript: {fileID: 1172973436}
 --- !u!1 &1191693360
 GameObject:
   m_ObjectHideFlags: 0
@@ -2618,7 +2631,6 @@ GameObject:
   - component: {fileID: 1233311950}
   - component: {fileID: 1233311949}
   - component: {fileID: 1233311953}
-  - component: {fileID: 1233311954}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2727,18 +2739,6 @@ MonoBehaviour:
   - {fileID: 484785858}
   interactiveCursors: []
   Timer: {fileID: 1969010104}
---- !u!114 &1233311954
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1233311948}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dde9a6e83a4739e448f5202907963e76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MinimapScript: {fileID: 1172973436}
 --- !u!1001 &1321488348
 Prefab:
   m_ObjectHideFlags: 0
@@ -3412,6 +3412,7 @@ GameObject:
   - component: {fileID: 1732196637}
   - component: {fileID: 1732196639}
   - component: {fileID: 1732196638}
+  - component: {fileID: 1732196640}
   m_Layer: 5
   m_Name: Main UI
   m_TagString: Untagged
@@ -3471,6 +3472,19 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1732196636}
+--- !u!114 &1732196640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1732196636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dde9a6e83a4739e448f5202907963e76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MinimapScript: {fileID: 1172973436}
+  CreateObject: {fileID: 1795182563}
 --- !u!1001 &1760019345
 Prefab:
   m_ObjectHideFlags: 0

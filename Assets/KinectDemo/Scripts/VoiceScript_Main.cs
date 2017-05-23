@@ -8,38 +8,33 @@ using System.Runtime.InteropServices;
 using Windows.Kinect;
 using UnityEngine.Windows.Speech;
 
-public class VoiceScript : MonoBehaviour {
-
-    private BodySourceManager bodysource;
-    Windows.Kinect.AudioSource KinectAudio;
+public class VoiceScript_Main : MonoBehaviour {
 
     public Minimap MinimapScript;
+    public UWBNetworkingPackage.KinectDemo.CreateObject CreateObject;
 
     KeywordRecognizer keywordRecognizer;
     Dictionary<string, System.Action> keywords = new Dictionary<string, System.Action>();
 
     // Use this for initialization
     void Start () {
-        bodysource = GameObject.Find("BodySourceManager").GetComponent<BodySourceManager>();
 
-        //if (bodysource.getSensor().AudioSource != null)
-        //{
-        //    KinectAudio = bodysource.getSensor().AudioSource;
-        //}
-
-        keywords.Add("create", () =>
+        keywords.Add("create cube", () =>
         {
-            Debug.Log("Create Triggered");
+            CreateObject.CreateCube();
         });
-        keywords.Add("position", () =>
+        keywords.Add("create sphere", () =>
+        {
+            CreateObject.CreateSphere();
+        });
+        keywords.Add("create trophy", () =>
+        {
+            CreateObject.CreateTrophy();
+        });
+
+        keywords.Add("change position", () =>
         {
             MinimapScript.Open();
-            Debug.Log("Position Triggered");
-        });
-        keywords.Add("close", () =>
-        {
-            MinimapScript.Close();
-            Debug.Log("Position Triggered");
         });
 
         keywordRecognizer = new KeywordRecognizer(keywords.Keys.ToArray());
