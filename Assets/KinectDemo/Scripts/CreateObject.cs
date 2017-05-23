@@ -20,18 +20,31 @@ namespace UWBNetworkingPackage.KinectDemo {
         {
             if (Input.GetKeyDown("c"))
             {
-                PhotonNetwork.Instantiate("Cube", main.transform.position + main.transform.forward * 2, Quaternion.identity, 0);
+                CreateCube();
             }
 
             if (Input.GetKeyDown("s"))
             {
-                PhotonNetwork.Instantiate("Sphere", main.transform.position + main.transform.forward * 2, Quaternion.identity, 0);
+                CreateSphere();
             }
 
             if (Input.GetKeyDown(KeyCode.T))
             {
-                PhotonNetwork.Instantiate("Trophy", main.transform.position + main.transform.forward * 2, Quaternion.identity, 0);
+                CreateTrophy();
             }
+        }
+
+        public void CreateSphere()
+        {
+            PhotonNetwork.Instantiate("Sphere", main.transform.position + main.transform.forward * 3, Quaternion.identity, 0);
+        }
+        public void CreateCube()
+        {
+            PhotonNetwork.Instantiate("Cube", main.transform.position + main.transform.forward * 3, Quaternion.identity, 0);
+        }
+        public void CreateTrophy()
+        {
+            PhotonNetwork.Instantiate("Trophy", main.transform.position + main.transform.forward * 3, Quaternion.identity, 0);
         }
     }
 

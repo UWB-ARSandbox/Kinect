@@ -159,6 +159,15 @@ public class Minimap : MonoBehaviour {
                 LockButton = ButtonArray[i];
         }
 
+        LockButton.GetComponent<RectTransform>().sizeDelta = new Vector2((ScreenHeight * .15f), ScreenHeight * .15f);
+        LockButton.GetComponent<RectTransform>().position = new Vector3(ScreenWidth * .21f, ScreenHeight * .1f);
+
+        ThirdPersonButton.GetComponent<RectTransform>().sizeDelta = new Vector2((ScreenHeight * .15f), ScreenHeight * .15f);
+        ThirdPersonButton.GetComponent<RectTransform>().position = new Vector3(ScreenWidth * .13f, ScreenHeight * .1f);
+
+        FrontButton.GetComponent<RectTransform>().sizeDelta = new Vector2((ScreenHeight * .15f), ScreenHeight * .15f);
+        FrontButton.GetComponent<RectTransform>().position = new Vector3(ScreenWidth * .05f, ScreenHeight *.1f);
+
         ThirdPersonButton.gameObject.SetActive(false);
         FrontButton.gameObject.SetActive(false);
 
@@ -334,6 +343,11 @@ public class Minimap : MonoBehaviour {
     public void CameraPosition(int i)
     {
         lockCameraPos = i;
+    }
+
+    public bool getCameraLock()
+    {
+        return lockCameraPosition;
     }
 
     public void LockCameraToggle()
