@@ -367,53 +367,17 @@ public class Minimap : MonoBehaviour {
         }
     }
 
-    void MovePosition (Hand hand)
+    public void MoveObjectPosition (Vector3 v, Camera c, GameObject o)
     {
-        //reduce movent to a more realistic number
-        //Movement = Movement / 100;
+        Vector3 v3 = v;
 
-        //if top down camera
-        if (CurrentCamera == 1)
-        {
-            Vector3 v3 = hand.CursorPosition;
-            v3.z = XZ_Camera.transform.position.y - hand.CurrentObject.transform.position.y;
-            v3 = XZ_Camera.ScreenToWorldPoint(v3);
+        v3.z = Vector3.Distance(c.transform.position, o.transform.position) *
+            Mathf.Cos(Mathf.Deg2Rad * (Vector3.Angle(c.transform.forward,
+            Vector3.Normalize(o.transform.position - c.transform.position))));
 
-            hand.CurrentObject.transform.position = v3;
+        v3 = c.ScreenToWorldPoint(v3);
 
-            //update rigid body position X and Z position
-            //move other cameras the same amount to avoid losing the object
-            YZ_Camera.transform.position = new Vector3(YZ_Camera.transform.position.x, hand.CurrentObject.transform.position.y, hand.CurrentObject.transform.position.z);
-            XY_Camera.transform.position = new Vector3(hand.CurrentObject.transform.position.x, hand.CurrentObject.transform.position.y, XY_Camera.transform.position.z);
-        }
-        //if front view camera
-        if (CurrentCamera == 2)
-        {
-            Vector3 v3 = hand.CursorPosition;
-            v3.z = XY_Camera.transform.position.z - hand.CurrentObject.transform.position.z;
-            v3 = XY_Camera.ScreenToWorldPoint(v3);
-
-            hand.CurrentObject.transform.position = v3;
-
-            //update X and Y positions
-            //move other cameras the same amount to avoid losing the object
-            YZ_Camera.transform.position = new Vector3(YZ_Camera.transform.position.x, hand.CurrentObject.transform.position.y, hand.CurrentObject.transform.position.z);
-            XZ_Camera.transform.position = new Vector3(hand.CurrentObject.transform.position.x, XZ_Camera.transform.position.y, hand.CurrentObject.transform.position.z);
-        }
-        //if side view camera
-        if (CurrentCamera == 3)
-        {
-            Vector3 v3 = hand.CursorPosition;
-            v3.z = YZ_Camera.transform.position.x - hand.CurrentObject.transform.position.x;
-            v3 = YZ_Camera.ScreenToWorldPoint(v3);
-
-            hand.CurrentObject.transform.position = v3;
-
-            //update Y and Z positions
-            //move other cameras the same amount to avoid losing the object
-            XZ_Camera.transform.position = new Vector3(hand.CurrentObject.transform.position.x, XZ_Camera.transform.position.y, hand.CurrentObject.transform.position.z);
-            XY_Camera.transform.position = new Vector3(hand.CurrentObject.transform.position.x, hand.CurrentObject.transform.position.y, XY_Camera.transform.position.y);
-        }
+        o.transform.position = v3;
     }
 
     public void RotatePosition(float num)
@@ -448,7 +412,7 @@ public class Minimap : MonoBehaviour {
     void MoveCamera (Vector3 Movement)
     {
         //reduce movement to a realistic value
-        Movement = Movement / 100;
+        Movement = Movement / 75;
 
         //update camera position based on current view
         if (CurrentCamera == 1)
@@ -709,14 +673,24 @@ public class Minimap : MonoBehaviour {
                         {
                             if (rightHand.CurrentObject.name == CameraRigidBody.name || rightHand.CurrentObject.name == UserRigidBody.name)
                             {
-                                UpdateRotation(leftHand, rightHand);
+                                if(CurrentCamera == 1)
+                                    UpdateObjectRotation(leftHand.CursorPosition, leftHand.CursorPosition - leftHand.Movement, XZ_Camera, rightHand.CurrentObject);
+                                else if(CurrentCamera == 2)
+                                    UpdateObjectRotation(leftHand.CursorPosition, leftHand.CursorPosition - leftHand.Movement, XY_Camera, rightHand.CurrentObject);
+                                else if(CurrentCamera == 3)
+                                    UpdateObjectRotation(leftHand.CursorPosition, leftHand.CursorPosition - leftHand.Movement, YZ_Camera, rightHand.CurrentObject);
                             }
                         }
                         else if (leftHand.CurrentObject != null)
                         {
                             if (leftHand.CurrentObject.name == CameraRigidBody.name || leftHand.CurrentObject.name == UserRigidBody.name)
                             {
-                                UpdateRotation(rightHand, leftHand);
+                                if (CurrentCamera == 1)
+                                    UpdateObjectRotation(rightHand.CursorPosition, rightHand.CursorPosition - rightHand.Movement, XZ_Camera, leftHand.CurrentObject);
+                                else if (CurrentCamera == 2)
+                                    UpdateObjectRotation(rightHand.CursorPosition, rightHand.CursorPosition - rightHand.Movement, XY_Camera, leftHand.CurrentObject);
+                                else if (CurrentCamera == 3)
+                                    UpdateObjectRotation(rightHand.CursorPosition, rightHand.CursorPosition - rightHand.Movement, YZ_Camera, leftHand.CurrentObject);
                             }
                         }
                         else
@@ -779,10 +753,10 @@ public class Minimap : MonoBehaviour {
         }
     }
 
-    void UpdateRotation(Hand hand, Hand otherHand)
+    public void UpdateObjectRotation(Vector3 current, Vector3 movement, Camera c, GameObject o)
     {
-        Vector3 v3 = hand.CursorPosition;
-        Vector3 v3m = hand.CursorPosition - hand.Movement;
+        Vector3 v3 = current;
+        Vector3 v3m = movement;
 
         Vector3 Dir;
         Vector3 Move;
@@ -790,82 +764,32 @@ public class Minimap : MonoBehaviour {
 
         float rot;
 
-        switch (CurrentCamera) {
-            case 1:
-                v3.z = XZ_Camera.transform.position.y - otherHand.CurrentObject.transform.position.y;
-                v3 = XZ_Camera.ScreenToWorldPoint(v3);
-                v3m.z = XZ_Camera.transform.position.y - otherHand.CurrentObject.transform.position.y;
-                v3m = XZ_Camera.ScreenToWorldPoint(v3m);
+        v3.z = Vector3.Distance(c.transform.position, o.transform.position) *
+            Mathf.Cos(Mathf.Deg2Rad * (Vector3.Angle(c.transform.forward,
+            Vector3.Normalize(o.transform.position - c.transform.position))));
+        v3 = c.ScreenToWorldPoint(v3);
 
-                Dir = v3 - otherHand.CurrentObject.transform.position;
-                Move = v3m - otherHand.CurrentObject.transform.position;
+        v3m.z = Vector3.Distance(c.transform.position, o.transform.position) *
+            Mathf.Cos(Mathf.Deg2Rad * (Vector3.Angle(c.transform.forward,
+            Vector3.Normalize(o.transform.position - c.transform.position))));
+        v3m = c.ScreenToWorldPoint(v3m);
 
-                Dir.Normalize();
-                Move.Normalize();
+        Dir = v3 - o.transform.position;
+        Move = v3m - o.transform.position;
 
-                rot = -Vector3.Angle(Dir, Move);
+        Dir.Normalize();
+        Move.Normalize();
 
-                cross = Vector3.Cross(Dir, Move);
+        rot = Vector3.Angle(Dir, Move);
 
-                if (cross.y < 0) //change direction based on Z value
-                {
-                    rot = -rot;
-                }
+        cross = Vector3.Cross(Dir, Move);
 
-                otherHand.CurrentObject.transform.Rotate(0, rot, 0, Space.World);
-
-                break;
-            case 2:
-                v3.z = XY_Camera.transform.position.z - otherHand.CurrentObject.transform.position.z;
-                v3 = XY_Camera.ScreenToWorldPoint(v3);
-                v3m.z = XY_Camera.transform.position.z - otherHand.CurrentObject.transform.position.z;
-                v3m = XY_Camera.ScreenToWorldPoint(v3m);
-
-                Dir = v3 - otherHand.CurrentObject.transform.position;
-                Move = v3m - otherHand.CurrentObject.transform.position;
-
-                Dir.Normalize();
-                Move.Normalize();
-
-                rot = -Vector3.Angle(Dir, Move);
-
-                cross = Vector3.Cross(Dir, Move);
-
-                if (cross.z < 0) //change direction based on Z value
-                {
-                    rot = -rot;
-                }
-
-                Debug.LogError(Dir + " " + Move + " " + rot);
-
-                otherHand.CurrentObject.transform.Rotate(0, 0, rot, Space.World);
-
-                break;
-            case 3:
-                v3.z = YZ_Camera.transform.position.x - otherHand.CurrentObject.transform.position.x;
-                v3 = YZ_Camera.ScreenToWorldPoint(v3);
-                v3m.z = YZ_Camera.transform.position.x - otherHand.CurrentObject.transform.position.x;
-                v3m = YZ_Camera.ScreenToWorldPoint(v3m);
-
-                Dir = v3 - otherHand.CurrentObject.transform.position;
-                Move = v3m - otherHand.CurrentObject.transform.position;
-
-                Dir.Normalize();
-                Move.Normalize();
-
-                rot = -Vector3.Angle(Dir, Move);
-
-                cross = Vector3.Cross(Dir, Move);
-
-                if (cross.x < 0) //change direction based on Z value
-                {
-                    rot = -rot;
-                }
-
-                otherHand.CurrentObject.transform.Rotate(rot, 0, 0, Space.World);
-
-                break;
+        if (cross.x + cross.y + cross.z < 0) //change direction based on Z value
+        {
+            rot = -rot;
         }
+
+        o.transform.Rotate(c.transform.forward, rot, Space.World);
     }
 
     void UpdatePosition(Hand hand)
@@ -875,7 +799,12 @@ public class Minimap : MonoBehaviour {
         {
             if (hand.CurrentObject.name == CameraRigidBody.name || hand.CurrentObject.name == UserRigidBody.name)
             {
-                MovePosition(hand);
+                if(CurrentCamera == 1)
+                    MoveObjectPosition(hand.CursorPosition, XZ_Camera, hand.CurrentObject);
+                else if(CurrentCamera == 2)
+                    MoveObjectPosition(hand.CursorPosition, XY_Camera, hand.CurrentObject);
+                else if (CurrentCamera == 3)
+                    MoveObjectPosition(hand.CursorPosition, YZ_Camera, hand.CurrentObject);
             }
         }
         else //else we hit nothing, move environment
